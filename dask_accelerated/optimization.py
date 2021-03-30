@@ -40,7 +40,7 @@ def optimize_graph_re2(graph, in_size):
 
     # Substitute the regex_callable if the operator name matches the str-match pattern
     for k in dsk:
-        if re.match(regex, key[0]) != None:
+        if re.match(regex, k[0]) != None:
             target_op = list(dsk[k])
             target_op[0] = regex_callable
             dsk[k] = tuple(target_op)
