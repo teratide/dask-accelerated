@@ -114,13 +114,13 @@ void re2Eval(int number_of_records, const std::string &regex, long int offset_ad
 
     RE2 re(regex);
 
-    // Loop over all records and write to SV if company name matches filter
-    int sv_index = 0;
-    for (int i = 0; i < number_of_records; i++) {
-      if (RE2::FullMatch(strings->GetString(i), re)) {
-        out_values[i] = 0x00000001;
-        sv_index++; // Increment the SV index to keep track of number of matches
-      }
+    for (int sv_byte = 0; sv_byte < out_size; sv_byte++) {
+        for (int bit = 0; bit < 8; bit++) {
+            int record_index = sv_byte * 8 + bit;
+            if (RE2::FullMatch(strings->GetString(record_index), re)) {
+                out_values[sv_byte] |= 1UL << bit;
+            }
+        }
     }
 }
 
