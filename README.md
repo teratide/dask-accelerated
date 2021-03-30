@@ -8,6 +8,13 @@ This new operator can do it's evaluation using native libraries or by offloading
 * Python 3.8+
 * Pip/conda
 
+Clone the repository including submodules
+
+```
+    git clone --recurse-submodules --remote-submodules https://github.com/teratide/dask-accelerated.git
+    cd dask-accelerated
+```
+    
 Build the dask-accelerated binaries
 ```
     mkdir -p native/build
