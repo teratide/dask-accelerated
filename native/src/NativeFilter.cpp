@@ -126,7 +126,7 @@ void re2Eval(int number_of_records, const std::string &regex, long int offset_ad
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(dask_accelerated, m) {
+PYBIND11_MODULE(dask_native, m) {
     m.doc() = R"pbdoc(
         Pybind11 example plugin
         -----------------------

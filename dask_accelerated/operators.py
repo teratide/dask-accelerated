@@ -1,7 +1,7 @@
 import pyarrow
 import pandas
 from dask.dataframe.accessor import maybe_wrap_pandas
-import dask_accelerated
+import dask_native
 
 # Performs string matching using Google's native RE2 library
 def custom_re2(obj, accessor, attr, args, kwargs):
@@ -21,7 +21,7 @@ def custom_re2(obj, accessor, attr, args, kwargs):
     out_buffers = pyarrow.Array.from_pandas(out).buffers()
 
     # Do a native evaluation of the regex matching
-    dask_accelerated.re2Eval(
+    dask_native.re2Eval(
         number_of_records,
         regex,
         in_buffers[1].address,

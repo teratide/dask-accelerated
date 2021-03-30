@@ -41,6 +41,6 @@ Build datasets
 Run dask-accelerated
 
 ```
-    cd dask-accelerated
+    cd dask_accelerated
     python3 main.py
 ```
