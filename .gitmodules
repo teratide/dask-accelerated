@@ -5,3 +5,6 @@
 [submodule "native/re2"]
 	path = native/re2
 	url = https://github.com/google/re2
+[submodule "data-generator"]
+	path = data-generator
+	url = https://github.com/teratide/data-generator

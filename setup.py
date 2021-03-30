@@ -8,6 +8,8 @@ setup(
         'dask',
         'dask[dataframe]',
         'pyarrow',
-        'pandas'
+        'pandas',
+        'xeger',
+        'progressbar2'
     ]
 )
