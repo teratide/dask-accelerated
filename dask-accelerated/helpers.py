@@ -6,7 +6,7 @@ def get_lazy_result(in_size):
     # Constants
     chunksize = 1e6
     parquet_engine = "pyarrow"
-    file_root = "/home/bob/Documents/thesis/data/generator/diving/data-"
+    file_root = "../data-generator/diving/data-"
     file_ext = ".parquet"
     regex = '.*[tT][eE][rR][aA][tT][iI][dD][eE][ \t\n]+[dD][iI][vV][iI][nN][gG][ \t\n]+([sS][uU][bB])+[sS][uU][rR][fF][aA][cC][eE].*'
 
