@@ -4,6 +4,7 @@
 #include <iostream>
 #include <arrow/api.h>
 #include <re2/re2.h>
+#include "Hexdump.hpp"
 
 using namespace std;
 
@@ -77,6 +78,17 @@ void make_record_batch_with_buf_addrs(std::shared_ptr<arrow::Schema> schema, int
     *batch = arrow::RecordBatch::Make(schema, num_rows, columns);
 }
 
+void dumpBuffer(long int addr, int size_in_bytes) {
+    // Redirect std::ostream to python output
+    pybind11::scoped_ostream_redirect stream(
+        std::cout,
+        pybind11::module_::import("sys").attr("stdout")
+    );
+
+    void* addr_pointer = reinterpret_cast<void *>(addr);
+    std::cout << Hexdump(addr_pointer, size_in_bytes) << std::endl;
+}
+
 void re2Eval(int number_of_records, const std::string &regex, long int offset_addr, long int value_addr, int offset_size, int value_size, long int out_addr, int out_size) {
 
     // Redirect std::ostream to python output
@@ -98,15 +110,15 @@ void re2Eval(int number_of_records, const std::string &regex, long int offset_ad
     auto strings = std::static_pointer_cast<arrow::StringArray>(inBatch->column(0));
 
     // The output SV is an array of int32's so we can access it using a simple pointer
-    auto out_values = reinterpret_cast<bool *>(out_addr);
+    auto out_values = reinterpret_cast<uint8_t *>(out_addr);
 
     RE2 re(regex);
 
     // Loop over all records and write to SV if company name matches filter
-    int sv_index = 0; // Starting index of the output selection vector
+    int sv_index = 0;
     for (int i = 0; i < number_of_records; i++) {
       if (RE2::FullMatch(strings->GetString(i), re)) {
-        out_values[sv_index] = true;
+        out_values[i] = 0x00000001;
         sv_index++; // Increment the SV index to keep track of number of matches
       }
     }
@@ -144,6 +156,11 @@ PYBIND11_MODULE(dask_accelerated, m) {
     m.def("re2Eval", &re2Eval, R"pbdoc(
         String matcher
         Do google RE2 eval of string match op on recordbatch.
+    )pbdoc");
+
+    m.def("dumpBuffer", &dumpBuffer, R"pbdoc(
+        Dump buffer
+        Makes a hexdump of the buffer content and prints to console.
     )pbdoc");
 
     m.def("subtract", [](int i, int j) { return i - j; }, R"pbdoc(
