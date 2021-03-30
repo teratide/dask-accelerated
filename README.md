@@ -10,11 +10,11 @@ This new operator can do it's evaluation using native libraries or by offloading
 
 Build the dask-accelerated binaries
 ```
-    mkdir -p build
-    cd build
-    cmake ../native
+    mkdir -p native/build
+    cd native/build
+    cmake ..
     make
-    cd ..
+    cd ../..
 ```
 
 Install python dependencies
@@ -26,11 +26,14 @@ Install python dependencies
 Build datasets
 
 ```
-    python3 data-generator/main.py
+    cd data-generator
+    python3 main.py
+    cd ..
 ```
 
 Run dask-accelerated
 
 ```
-    python3 dask-accelerated/main.py
+    cd dask-accelerated
+    python3 main.py
 ```
