@@ -25,6 +25,8 @@ def optimize_graph_re2(graph, in_size):
     regex = re.compile('str-match.*')
 
     # Find the first key in the graph which matches the regex
+    # This key is used to target one of the operators in the task graph
+    # from which the regex_callable will be constructed
     for key in graph.keys():
         if re.match(regex, key[0]) != None:
             key = key[0]    # The keys are tuples and the operator name is the first value
@@ -36,11 +38,11 @@ def optimize_graph_re2(graph, in_size):
     # Compute the substitute subgraph_callable
     regex_callable = compute_substitute(dsk, key, custom_re2)
 
-    # TODO: Improve this, the number of worker splits are only equal to in_size if chunksize=1e6
-    for i in range(in_size):
-        target_layer = (key, i)
-        target_op = list(dsk[target_layer])
-        target_op[0] = regex_callable
-        dsk[target_layer] = tuple(target_op)
+    # Substitute the regex_callable if the operator name matches the str-match pattern
+    for k in dsk:
+        if re.match(regex, key[0]) != None:
+            target_op = list(dsk[k])
+            target_op[0] = regex_callable
+            dsk[k] = tuple(target_op)
 
     return dsk
