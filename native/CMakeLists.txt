@@ -11,9 +11,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ../..)
 
 find_package(Arrow 3.0.0 CONFIG REQUIRED)
 
+add_subdirectory(re2)
+
 add_subdirectory(pybind11)
 pybind11_add_module(dask_accelerated src/NativeFilter.cpp)
 
-target_link_libraries(dask_accelerated PRIVATE arrow_shared /usr/local/lib/libre2.a)
+target_link_libraries(dask_accelerated PRIVATE arrow_shared re2)
 
 target_compile_definitions(dask_accelerated PRIVATE VERSION_INFO=1)

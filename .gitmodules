@@ -2,3 +2,6 @@
 	path = native/pybind11
 	url = https://github.com/pybind/pybind11
 	branch = stable
+[submodule "native/re2"]
+	path = native/re2
+	url = https://github.com/google/re2
