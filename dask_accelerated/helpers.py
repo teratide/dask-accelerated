@@ -1,6 +1,9 @@
 import dask
 import time
+import numpy as np
 from optimization import optimize_graph_re2
+from operators import CustomFilter
+
 
 # Returns a lazy result for the regex usecase in Dask
 def get_lazy_result(in_size):
@@ -30,6 +33,22 @@ def get_lazy_result(in_size):
     # Define the query using the pandas-like API
     return df[df["string"].str.match(regex)]["value"].sum()
 
+
+def construct_durations(total, filter):
+
+    durations = {
+        'total': total,
+        'filter': {
+            'min': np.min(filter),
+            'ave': np.mean(filter),
+            'max': np.max(filter),
+            'total': np.sum(filter)
+        }
+    }
+
+    return durations
+
+
 # Run the regex query on vanilla Dask
 def run_vanilla(size):
 
@@ -39,19 +58,26 @@ def run_vanilla(size):
     result = get_lazy_result(size)
     graph = result.__dask_graph__()
 
-    # Convert the HighLevelGraph to a simpler task graph matching the Dask accelerated implementation
-    dsk = dict(graph)
+    # Use the custom 'vanilla' str match operator which also records filter time
+    substitute_operator = CustomFilter()
+
+    # Optimize the task graph by substituting the custom filter operator
+    dsk = optimize_graph_re2(graph, substitute_operator.custom_vanilla)
 
     # Perform the computations in the graph
     start = time.time()
     res = dask.get(dsk, (result.__dask_layers__()[0], 0))
     end = time.time()
 
-    duration_in_seconds = end - start
+    total_duration_in_seconds = end - start
 
-    print("Computed ", res, " in ", duration_in_seconds, " seconds")
+    print("Computed ", res, " in ", total_duration_in_seconds, " seconds")
 
-    return (res, duration_in_seconds)
+    filter_durations = np.array(substitute_operator.durations)
+    durations = construct_durations(total_duration_in_seconds, filter_durations)
+
+    return (res, durations)
+
 
 # Run the regex query on Dask + RE2
 def run_re2(size):
@@ -61,16 +87,22 @@ def run_re2(size):
     result = get_lazy_result(size)
     graph = result.__dask_graph__()
 
+    # Use the custom str match operator which also records filter time
+    substitute_operator = CustomFilter()
+
     # Optimize the task graph by substituting the RE2 regex operator
-    dsk = optimize_graph_re2(graph, size)
+    dsk = optimize_graph_re2(graph, substitute_operator.custom_re2)
 
     # Perform the computations in the graph
     start = time.time()
     res = dask.get(dsk, (result.__dask_layers__()[0], 0))
     end = time.time()
 
-    duration_in_seconds = end - start
+    total_duration_in_seconds = end - start
 
-    print("Computed ", res, " in ", duration_in_seconds, " seconds")
+    print("Computed ", res, " in ", total_duration_in_seconds, " seconds")
 
-    return (res, duration_in_seconds)
+    filter_durations = np.array(substitute_operator.durations)
+    durations = construct_durations(total_duration_in_seconds, filter_durations)
+
+    return (res, durations)
