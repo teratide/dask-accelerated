@@ -1,4 +1,5 @@
 import helpers
+import benchmarks
 
 def test_re2(size):
     (re2_result, re2_duration) = helpers.run_re2(size)
@@ -14,8 +15,14 @@ def test_tidre(size):
 
 if __name__ == '__main__':
 
+    # Test to see if the tidre operator works
     size = 100;
-
     helpers.generate_datasets_if_needed([100])
-
     test_tidre(size)
+
+    # Perform benchmark if dask-accelerated didn't crash
+    # on the above test
+    sizes = [1e3, 64e3, 1024e3, 2048e3]
+    repeats = 3
+    helpers.generate_datasets_if_needed(sizes)
+    benchmarks.benchmark_filter_duration(sizes, repeats)
