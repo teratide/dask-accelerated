@@ -1,17 +1,21 @@
 import helpers
-import benchmarks
 
-def test_re2():
-    (vanilla_result, vanilla_duration) = helpers.run_vanilla(10)
-    (dask_result, dask_duration) = helpers.run_re2(10)
+def test_re2(size):
+    (re2_result, re2_duration) = helpers.run_re2(size)
+    (vanilla_result, vanilla_duration) = helpers.run_vanilla(size)
 
-    assert vanilla_result == dask_result
+    assert vanilla_result == re2_result
+
+def test_tidre(size):
+    (tidre_result, tidre_duration) = helpers.run_tidre(size)
+    (vanilla_result, vanilla_duration) = helpers.run_vanilla(size)
+
+    assert vanilla_result == tidre_result
 
 if __name__ == '__main__':
 
-    sizes = [1e3, 64e3, 1024e3, 2048e3]
-    repeats = 3
+    size = 100;
 
-    helpers.generate_datasets_if_needed(sizes)
+    helpers.generate_datasets_if_needed([100])
 
-    benchmarks.benchmark_filter_duration(sizes, repeats)
+    test_tidre(size)

@@ -119,6 +119,34 @@ def run_re2(size):
 
     return (res, durations)
 
+# Run the regex query on Dask + Tidre
+def run_tidre(size):
+    print("Running Dask + Tidre on ", size, "...\t", end="")
+
+    # Obtain the HighLevelGraph for the usecase
+    result = get_lazy_result(size)
+    graph = result.__dask_graph__()
+
+    # Use the custom str match operator which also records filter time
+    substitute_operator = CustomFilter()
+
+    # Optimize the task graph by substituting the RE2 regex operator
+    dsk = optimize_graph_re2(graph, substitute_operator.custom_tidre)
+
+    # Perform the computations in the graph
+    start = time.time()
+    res = dask.get(dsk, (result.__dask_layers__()[0], 0))
+    end = time.time()
+
+    total_duration_in_seconds = end - start
+
+    print("Computed ", res, " in ", total_duration_in_seconds, " seconds")
+
+    filter_durations = np.array(substitute_operator.durations)
+    durations = construct_durations(total_duration_in_seconds, filter_durations)
+
+    return (res, durations)
+
 def generate_datasets_if_needed(sizes):
     data_root = '../data_generator/diving'
 
