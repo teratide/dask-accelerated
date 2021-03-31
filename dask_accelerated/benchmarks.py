@@ -12,7 +12,7 @@ def benchmark_filter_duration(sizes, repeats):
         (res, dur) = helpers.run_re2(size)
 
         # Append 'M' to size and use as key to indicate 10e6 rows
-        key = str(size) + "M"
+        key = helpers.make_size_string(size)
         vanilla_filter[key] = 0
         re2_filter[key] = 0
 
