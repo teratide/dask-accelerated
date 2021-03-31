@@ -1,4 +1,5 @@
 import helpers
+import pickler
 
 def test_re2():
     (vanilla_result, vanilla_duration) = helpers.run_vanilla(10)
@@ -38,6 +39,13 @@ def benchmark_filter_duration():
 
     print(vanilla_filter)
     print(re2_filter)
+
+    data = {
+        'vanilla_filter': vanilla_filter,
+        're2_filter': re2_filter
+    }
+
+    pickler.store_to_notebooks(data)
 
 if __name__ == '__main__':
 
