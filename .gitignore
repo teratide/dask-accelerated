@@ -143,3 +143,8 @@ cython_debug/
 # Datasets
 *.csv
 *.parquet
+*.pickle
+
+# Plots
+*.png
+*.pdf
