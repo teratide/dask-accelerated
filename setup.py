@@ -10,6 +10,7 @@ setup(
         'pyarrow',
         'pandas',
         'xeger',
-        'progressbar2'
+        'progressbar2',
+        'matplotlib'
     ]
 )
