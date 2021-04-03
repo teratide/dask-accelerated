@@ -2,11 +2,16 @@
 #include <pybind11/iostream.h>
 #include <string>
 #include <iostream>
+#include <mutex>
+#include <memory>
 #include <arrow/api.h>
 #include <re2/re2.h>
+#include <math.h>
 #include "Hexdump.hpp"
+#include "Tidre.h"
 
 using namespace std;
+using Tidre = tidre::Tidre<8>;
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -124,6 +129,102 @@ void re2Eval(int number_of_records, const std::string &regex, long int offset_ad
     }
 }
 
+void tidreEval(int number_of_records, long int offset_addr, long int value_addr, int offset_size, int value_size, long int out_addr, int out_size) {
+
+    // Redirect std::ostream to python output
+    pybind11::scoped_ostream_redirect stream(
+        std::cout,
+        pybind11::module_::import("sys").attr("stdout")
+    );
+
+    // The output SV is an array of int32's so we can access it using a simple pointer
+    auto out_values = reinterpret_cast<uint8_t *>(out_addr);
+
+    // The output SV is an array of int32's so we can access it using a simple pointer
+    void* temp_buffer = malloc(sizeof(int32_t) * number_of_records);
+    auto matching_indices = reinterpret_cast<int32_t *>(temp_buffer);
+    auto int32_offset_buffer_ptr = reinterpret_cast<int32_t *>(offset_addr);
+    auto char_data_buffer_ptr = reinterpret_cast<int32_t *>(value_addr);
+
+    // Start eval using tidre
+    static std::mutex mutex;
+
+    const std::lock_guard<std::mutex> lock(mutex);
+    static std::shared_ptr<Tidre> t = nullptr;
+    if (!t) {
+      auto status = Tidre::Make(&t, "aws", 1, 8, 2, 3);
+      if (!status.ok()) {
+        t = nullptr;
+        std::cout << "Status not OK after initializing Tidre" << std::endl;
+      }
+    }
+    size_t number_of_matches = 0;
+    auto status = t->RunRaw(
+      int32_offset_buffer_ptr,
+      char_data_buffer_ptr,
+      number_of_records,
+      matching_indices,
+      number_of_records*4 /* or output buffer size if smaller */,
+      &number_of_matches,
+      nullptr,
+      0
+    );
+    if (!status.ok()) {
+      std::cout << "Status not OK after running Tidre" << std::endl;
+    }
+
+    int matching_index;
+    int sv_byte;
+    int sv_bit;
+    for (int i = 0; i < number_of_matches; i++) {
+        matching_index = matching_indices[i];
+
+        sv_byte = floor((float) matching_index / (float) 8);
+        sv_bit = matching_index % 8;
+
+        out_values[sv_byte] |= 1UL << sv_bit;
+    }
+
+    free(temp_buffer);
+}
+
+void testSvConversion() {
+
+    // Redirect std::ostream to python output
+    pybind11::scoped_ostream_redirect stream(
+        std::cout,
+        pybind11::module_::import("sys").attr("stdout")
+    );
+
+    int number_of_records = 33;
+    int number_of_matches = 3;
+    int32_t test[] = {3, 12, 15};
+
+    void* addr_pointer = reinterpret_cast<void *>(test);
+    std::cout << Hexdump(addr_pointer, sizeof(test)) << std::endl;
+
+    int out_size = ceil((float)number_of_records / (float)8);
+    void* temp_buffer = malloc(sizeof(uint8_t) * out_size);
+    auto out_values = reinterpret_cast<uint8_t *>(temp_buffer);
+
+    memset(out_values, 0, out_size);
+
+    int matching_index;
+    int sv_byte;
+    int sv_bit;
+    for (int i = 0; i < number_of_matches; i++) {
+        matching_index = test[i];
+
+        sv_byte = floor((float) matching_index / (float) 8);
+        sv_bit = matching_index % 8;
+
+        out_values[sv_byte] |= 1UL << sv_bit;
+    }
+
+    addr_pointer = reinterpret_cast<void *>(out_values);
+    std::cout << Hexdump(addr_pointer, out_size) << std::endl;
+}
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(dask_native, m) {
@@ -155,7 +256,16 @@ PYBIND11_MODULE(dask_native, m) {
 
     m.def("re2Eval", &re2Eval, R"pbdoc(
         String matcher
-        Do google RE2 eval of string match op on recordbatch.
+        Do google RE2 eval of string match on recordbatch.
+    )pbdoc");
+
+    m.def("tidreEval", &tidreEval, R"pbdoc(
+        String matcher
+        Do tidre eval on fpga of string match on recordbatch.
+    )pbdoc");
+
+    m.def("testSvConversion", &testSvConversion, R"pbdoc(
+        Test conversion from selection vector with matching indices to a bitvector.
     )pbdoc");
 
     m.def("dumpBuffer", &dumpBuffer, R"pbdoc(
