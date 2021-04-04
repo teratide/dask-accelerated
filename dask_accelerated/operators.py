@@ -2,7 +2,7 @@ import pyarrow
 import pandas
 import time
 from dask.dataframe.accessor import maybe_wrap_pandas
-import dask_native
+from dask_accelerated import dask_native
 
 
 class CustomFilter:

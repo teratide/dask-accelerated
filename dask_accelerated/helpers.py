@@ -2,8 +2,8 @@ import dask
 import time
 import os
 import numpy as np
-from optimization import optimize_graph_re2
-from operators import CustomFilter
+from dask_accelerated.optimization import optimize_graph_re2
+from dask_accelerated.operators import CustomFilter
 from data_generator import gen
 
 
