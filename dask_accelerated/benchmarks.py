@@ -37,7 +37,7 @@ def benchmark_tidre(in_sizes, batch_sizes, repeats):
 
 
 def benchmark_re2_batch_size(in_size, batch_sizes, repeats):
-    name = 're2_batch_size'
+    name = 'batch_size'
 
     vanilla_filter = {}
     re2_filter = {}
@@ -64,7 +64,7 @@ def benchmark_re2_batch_size(in_size, batch_sizes, repeats):
 
 
 def benchmark_tidre_batch_size(in_size, batch_sizes, repeats):
-    name = 'tidre_batch_size'
+    name = 'batch_size'
 
     vanilla_filter = {}
     re2_filter = {}
@@ -94,7 +94,7 @@ def benchmark_tidre_batch_size(in_size, batch_sizes, repeats):
 
 
 def benchmark_re2_in_size(in_sizes, batch_size, repeats):
-    name = 're2_in_size'
+    name = 'in_size'
 
     vanilla_filter = {}
     re2_filter = {}
@@ -121,7 +121,7 @@ def benchmark_re2_in_size(in_sizes, batch_size, repeats):
 
 
 def benchmark_tidre_in_size(in_sizes, batch_size, repeats):
-    name = 'tidre_in_size'
+    name = 'in_size'
 
     vanilla_filter = {}
     re2_filter = {}
