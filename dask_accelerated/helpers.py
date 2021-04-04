@@ -7,25 +7,72 @@ from operators import CustomFilter
 from data_generator import gen
 
 
-# Convert to size string to match output of data generator
-def make_size_string(size):
-    size = int(size)
-    if (size >= 1e6):
-        size_str = str(int(size / 1e6)) + 'M'
-    else:
-        size_str = str(size)
+# Run the regex query on vanilla Dask
+def run_vanilla(in_size, batch_size=1e6):
 
-    return size_str
+    (result, graph) = get_result_and_graph(in_size, batch_size, 'vanilla Dask')
+
+    # Use the custom 'vanilla' str match operator which also records filter time
+    substitute_operator = CustomFilter()
+
+    # Optimize the task graph by substituting the custom filter operator
+    dsk = optimize_graph_re2(graph, substitute_operator.custom_vanilla)
+
+    (res, durations) = run_and_record_durations(dsk, result, substitute_operator)
+
+    return res, durations
+
+
+# Run the regex query on Dask + RE2
+def run_re2(in_size, batch_size=1e6):
+
+    (result, graph) = get_result_and_graph(in_size, batch_size, 'Dask + RE2')
+
+    # Use the custom str match operator which also records filter time
+    substitute_operator = CustomFilter()
+
+    # Optimize the task graph by substituting the RE2 regex operator
+    dsk = optimize_graph_re2(graph, substitute_operator.custom_re2)
+
+    (res, durations) = run_and_record_durations(dsk, result, substitute_operator)
+
+    return res, durations
+
+# Run the regex query on Dask + Tidre
+def run_tidre(in_size, batch_size=1e6):
+
+    (result, graph) = get_result_and_graph(in_size, batch_size, 'Dask + Tidre')
+
+    # Use the custom str match operator which also records filter time
+    substitute_operator = CustomFilter()
+
+    # Optimize the task graph by substituting the RE2 regex operator
+    dsk = optimize_graph_re2(graph, substitute_operator.custom_tidre)
+
+    (res, durations) = run_and_record_durations(dsk, result, substitute_operator)
+
+    return res, durations
+
+
+def get_result_and_graph(in_size, batch_size, name):
+    print("Running ", name, " \tin: ", in_size, " batch: ", batch_size, "...\t", end="")
+
+    # Obtain the HighLevelGraph for the usecase
+    result = get_lazy_result(in_size, batch_size)
+    graph = result.__dask_graph__()
+
+    return result, graph
+
 
 # Returns a lazy result for the regex usecase in Dask
-def get_lazy_result(in_size):
+def get_lazy_result(in_size, batch_size):
 
     # In size is in millions of records
     # Append 'M' to match the dataset filenames
     size_str = make_size_string(in_size)
 
     # Constants
-    chunksize = 1e6
+    chunksize = batch_size
     parquet_engine = "pyarrow"  # Valid engines: ['fastparquet', 'pyarrow', 'pyarrow-dataset', 'pyarrow-legacy']
     file_root = "../data_generator/diving/data-"
     file_ext = ".parquet"
@@ -46,6 +93,33 @@ def get_lazy_result(in_size):
     return df[df["string"].str.match(regex)]["value"].sum()
 
 
+# Convert to size string to match output of data generator
+def make_size_string(size):
+    size = int(size)
+    if (size >= 1e6):
+        size_str = str(int(size / 1e6)) + 'M'
+    else:
+        size_str = str(size)
+
+    return size_str
+
+
+def run_and_record_durations(dsk, result, substitute_operator):
+
+    # Perform the computations in the graph
+    start = time.time()
+    res = dask.get(dsk, (result.__dask_layers__()[0], 0))
+    end = time.time()
+
+    total_duration_in_seconds = end - start
+
+    print("Computed ", res, " in ", total_duration_in_seconds, " seconds")
+
+    filter_durations = np.array(substitute_operator.durations)
+    durations = construct_durations(total_duration_in_seconds, filter_durations)
+
+    return res, durations
+
 def construct_durations(total, filter):
 
     durations = {
@@ -60,92 +134,6 @@ def construct_durations(total, filter):
 
     return durations
 
-
-# Run the regex query on vanilla Dask
-def run_vanilla(size):
-
-    print("Running vanilla Dask on ", size, "...\t", end="")
-
-    # Obtain the HighLevelGraph for the usecase
-    result = get_lazy_result(size)
-    graph = result.__dask_graph__()
-
-    # Use the custom 'vanilla' str match operator which also records filter time
-    substitute_operator = CustomFilter()
-
-    # Optimize the task graph by substituting the custom filter operator
-    dsk = optimize_graph_re2(graph, substitute_operator.custom_vanilla)
-
-    # Perform the computations in the graph
-    start = time.time()
-    res = dask.get(dsk, (result.__dask_layers__()[0], 0))
-    end = time.time()
-
-    total_duration_in_seconds = end - start
-
-    print("Computed ", res, " in ", total_duration_in_seconds, " seconds")
-
-    filter_durations = np.array(substitute_operator.durations)
-    durations = construct_durations(total_duration_in_seconds, filter_durations)
-
-    return (res, durations)
-
-
-# Run the regex query on Dask + RE2
-def run_re2(size):
-    print("Running Dask + RE2 on ", size, "...\t\t", end="")
-
-    # Obtain the HighLevelGraph for the usecase
-    result = get_lazy_result(size)
-    graph = result.__dask_graph__()
-
-    # Use the custom str match operator which also records filter time
-    substitute_operator = CustomFilter()
-
-    # Optimize the task graph by substituting the RE2 regex operator
-    dsk = optimize_graph_re2(graph, substitute_operator.custom_re2)
-
-    # Perform the computations in the graph
-    start = time.time()
-    res = dask.get(dsk, (result.__dask_layers__()[0], 0))
-    end = time.time()
-
-    total_duration_in_seconds = end - start
-
-    print("Computed ", res, " in ", total_duration_in_seconds, " seconds")
-
-    filter_durations = np.array(substitute_operator.durations)
-    durations = construct_durations(total_duration_in_seconds, filter_durations)
-
-    return (res, durations)
-
-# Run the regex query on Dask + Tidre
-def run_tidre(size):
-    print("Running Dask + Tidre on ", size, "...\t", end="")
-
-    # Obtain the HighLevelGraph for the usecase
-    result = get_lazy_result(size)
-    graph = result.__dask_graph__()
-
-    # Use the custom str match operator which also records filter time
-    substitute_operator = CustomFilter()
-
-    # Optimize the task graph by substituting the RE2 regex operator
-    dsk = optimize_graph_re2(graph, substitute_operator.custom_tidre)
-
-    # Perform the computations in the graph
-    start = time.time()
-    res = dask.get(dsk, (result.__dask_layers__()[0], 0))
-    end = time.time()
-
-    total_duration_in_seconds = end - start
-
-    print("Computed ", res, " in ", total_duration_in_seconds, " seconds")
-
-    filter_durations = np.array(substitute_operator.durations)
-    durations = construct_durations(total_duration_in_seconds, filter_durations)
-
-    return (res, durations)
 
 def generate_datasets_if_needed(sizes):
     data_root = '../data_generator/diving'
