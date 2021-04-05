@@ -144,10 +144,10 @@ def benchmark_tidre_in_size(in_sizes, batch_size, batch_aggregate, repeats):
         # Make key more readable if size >= 1e6
         key = helpers.make_size_string(in_size)
 
-        run_repeats(in_size, batch_size, batch_aggregate, repeats, key, vanilla_filter, re2_filter, tidre_filter=None)
         (vanilla_filter, re2_filter, tidre_filter) = run_repeats(
             in_size,
             batch_size,
+            batch_aggregate,
             repeats,
             key,
             vanilla_filter,
