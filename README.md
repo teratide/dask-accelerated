@@ -49,7 +49,7 @@ Now the *dask accelerated* native binaries can be build, these also build Fletch
 ```
     mkdir -p native/build
     cd native/build
-    cmake ..
+    cmake3 ..
     make
     cd ../..
 ```
