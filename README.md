@@ -45,7 +45,7 @@ In order to communicate with the FPGA, we'll also need the XDMA driver. It can b
     cd ../../../../../..
 ```
 
-Now the dask-accelerated native binaries can be build, these also build Fletcher and RE2.
+Now the *dask accelerated* native binaries can be build, these also build Fletcher and RE2.
 ```
     mkdir -p native/build
     cd native/build
@@ -77,7 +77,7 @@ A `setup.py` specifies the required modules, these can be installed using pip.
 ```
 
 ### 5: Build datasets (optional)
-The benchmarks provided in `dask_accelerated` automatically generate any missing datasets.
+The benchmarks provided in `benchmarks/` automatically generate any missing datasets.
 These datasets can also be generated in advances,
 but this has no effect on the runtime results of the benchmarks themselves.
 
@@ -88,8 +88,29 @@ but this has no effect on the runtime results of the benchmarks themselves.
 ```
 
 ## Running dask accelerated
+This section explains how to run *dask accelerated* from the command line. Alternatively,
+[benchmarks](./benchmark/README.md) or [tests](./test/README.md) can be performed.
 
+The usage of *dask accelerated* can be found below.
+```
+    usage: main.py [-h] [--vanilla] [--re2] [--tidre] N B
+    
+    Dask Accelerated.
+    
+    positional arguments:
+      N           input size in records at which to run dask accelerated
+      B           batch size in records at which to run dask accelerated, must be a multiple of 1000
+    
+    optional arguments:
+      -h, --help  show this help message and exit
+      --vanilla   run vanilla Dask. (default: do not run)
+      --re2       run the RE2 implementation. (default: do not run)
+      --tidre     run the Tidre implementation. (default: do not run)
+```
+
+For example, the following command can be used to run both the RE2 and Tidre implementations of *dask accelerated* on
+a dataset of 2e6 rows with a batch size of 64e3.
 ```
     cd dask_accelerated
-    python3 main.py
+    python3 main.py 2e6 64e3 --re2 --tidre
 ```
