@@ -4,18 +4,48 @@ This new operator can do it's evaluation using native libraries or by offloading
 
 ## Installation
 
-* Install Apache Arrow 3.0+
+### Requirements
+* [Apache Arrow 3.0+](https://arrow.apache.org/install/)
+* Cmake 3.16+
 * Python 3.8+
-* Pip/conda
+* Pip
 
+### 1: Clone the repository
 Clone the repository including submodules
-
 ```
-    git clone --recurse-submodules --remote-submodules https://github.com/teratide/dask-accelerated.git
+    git clone https://github.com/teratide/dask-accelerated.git --recursive
     cd dask-accelerated
 ```
-    
-Build the dask-accelerated binaries
+
+### 2: Build binaries
+Fletcher on its own has no platform support; support for specific FPGA platforms needs to be installed separately.
+The support library for AWS can be found at `native/fletcher-aws/runtime/runtime`. Before we can build that, however,
+we'll need some environment setup from AWS.
+```
+    source native/fletcher-aws/aws-fpga/sdk_setup.sh
+```
+
+After that, just install normally.
+```
+    cd native/fletcher-aws/runtime/runtime
+    mkdir -p build
+    cd build
+    cmake3 ..
+    make -j
+    sudo make install
+    sudo ldconfig
+    cd ../../../../..
+```
+
+In order to communicate with the FPGA, we'll also need the XDMA driver. It can be installed as follows.
+```
+    cd native/fletcher-aws/aws-fpga/sdk/linux_kernel_drivers/xdma
+    make -j
+    sudo make install
+    cd ../../../../../..
+```
+
+Now the dask-accelerated native binaries can be build, these also build Fletcher and RE2.
 ```
     mkdir -p native/build
     cd native/build
@@ -24,13 +54,32 @@ Build the dask-accelerated binaries
     cd ../..
 ```
 
-Install python dependencies
+### 3: Configure FPGA
+Before the FPGA can be configured with the correct bitstream, it needs to be cleared.
+```
+    sudo fpga-clear-local-image -S 0
+```
+
+The bitstream that performs the target regular expression evaluation can now be loaded.
+A different bitsream is required if another regular expression needs to be evaluated on the FPGA.
+```
+    # Regex evaluation for `teratide diving subsurface`
+    sudo fpga-load-local-image -S 0 -I agfi-028fcd53df79020d9
+```
+
+From this point onward, loading another bistream does not require clearing the FPGA.
+
+### 4: Install python dependencies
+A `setup.py` specifies the required modules, these can be installed using pip.
 
 ```
-    pip install -e .
+    pip3 install -e .
 ```
 
-Build datasets
+### 5: Build datasets (optional)
+The benchmarks provided in `dask_accelerated` automatically generate any missing datasets.
+These datasets can also be generated in advances,
+but this has no effect on the runtime results of the benchmarks themselves.
 
 ```
     cd data-generator
@@ -38,7 +87,7 @@ Build datasets
     cd ..
 ```
 
-Run dask-accelerated
+## Running dask accelerated
 
 ```
     cd dask_accelerated
