@@ -62,7 +62,8 @@ if __name__ == '__main__':
     batch_aggregates = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
     repeats = 3
 
-    benchmark_re2(in_sizes, batch_aggregates, repeats)
     if args.tidre:
         benchmark_tidre(in_sizes, batch_aggregates, repeats)
+    else:
+        benchmark_re2(in_sizes, batch_aggregates, repeats)
 
