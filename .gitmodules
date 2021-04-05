@@ -8,3 +8,6 @@
 [submodule "data-generator"]
 	path = data_generator
 	url = https://github.com/teratide/data-generator
+[submodule "native/fletcher-aws"]
+	path = native/fletcher-aws
+	url = https://github.com/abs-tudelft/fletcher-aws.git
