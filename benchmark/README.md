@@ -21,3 +21,7 @@ Note that performing the Tidre benchmarks requires an FPGA accelerator to be ava
 ## Results
 The results of these benchmarks automatically get written to a data file in `../notebooks/`. This folder contains
 a jupyter notebook `plots.ipynb` that, when run, generates all relevant plots and saves them in `../notebooks/plots`.
+
+An example of such results can be seen below.
+
+![example results](../docs/aws_f1_plots.jpg)
