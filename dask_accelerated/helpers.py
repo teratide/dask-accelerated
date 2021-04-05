@@ -8,9 +8,9 @@ from data_generator import gen
 
 
 # Run the regex query on vanilla Dask
-def run_vanilla(in_size, batch_size=1e6):
+def run_vanilla(in_size, batch_size=1e6, split_row_groups=True):
 
-    (result, graph) = get_result_and_graph(in_size, batch_size, 'vanilla Dask')
+    (result, graph) = get_result_and_graph(in_size, batch_size, split_row_groups, 'vanilla Dask')
 
     # Use the custom 'vanilla' str match operator which also records filter time
     substitute_operator = CustomFilter()
@@ -24,9 +24,9 @@ def run_vanilla(in_size, batch_size=1e6):
 
 
 # Run the regex query on Dask + RE2
-def run_re2(in_size, batch_size=1e6):
+def run_re2(in_size, batch_size=1e6, split_row_groups=True):
 
-    (result, graph) = get_result_and_graph(in_size, batch_size, 'Dask + RE2')
+    (result, graph) = get_result_and_graph(in_size, batch_size, split_row_groups, 'Dask + RE2')
 
     # Use the custom str match operator which also records filter time
     substitute_operator = CustomFilter()
@@ -39,9 +39,9 @@ def run_re2(in_size, batch_size=1e6):
     return res, durations
 
 # Run the regex query on Dask + Tidre
-def run_tidre(in_size, batch_size=1e6):
+def run_tidre(in_size, batch_size=1e6, split_row_groups=True):
 
-    (result, graph) = get_result_and_graph(in_size, batch_size, 'Dask + Tidre')
+    (result, graph) = get_result_and_graph(in_size, batch_size, split_row_groups, 'Dask + Tidre')
 
     # Use the custom str match operator which also records filter time
     substitute_operator = CustomFilter()
@@ -54,22 +54,23 @@ def run_tidre(in_size, batch_size=1e6):
     return res, durations
 
 
-def get_result_and_graph(in_size, batch_size, name):
-    print("Running ", name, " \tin: ", in_size, " batch: ", batch_size, "...\t", end="")
+def get_result_and_graph(in_size, batch_size, split_row_groups, name):
+    print("Running ", name, " \tin: ", in_size, " batch: ", batch_size*split_row_groups, "...\t", end="")
 
     # Obtain the HighLevelGraph for the usecase
-    result = get_lazy_result(in_size, batch_size)
+    result = get_lazy_result(in_size, batch_size, split_row_groups)
     graph = result.__dask_graph__()
 
     return result, graph
 
 
 # Returns a lazy result for the regex usecase in Dask
-def get_lazy_result(in_size, batch_size):
+def get_lazy_result(in_size, batch_size, split_row_groups):
 
     # In size is in millions of records
     # Append 'M' to match the dataset filenames
     size_str = make_size_string(in_size)
+    batch_str = make_size_string(batch_size)
 
     # Constants
     chunksize = batch_size
@@ -80,10 +81,11 @@ def get_lazy_result(in_size, batch_size):
 
     # Load the dataframe
     columns = ["value", "string"]
-    filename = file_root + size_str + file_ext
+    filename = file_root + size_str + '-' + batch_str + file_ext
     df = dask.dataframe.read_parquet(
         filename,
         chunksize=chunksize,
+        split_row_groups=split_row_groups,
         engine=parquet_engine,
         gather_statistics=True,
         columns=columns
@@ -135,15 +137,16 @@ def construct_durations(total, filter):
     return durations
 
 
-def generate_datasets_if_needed(sizes):
+def generate_datasets_if_needed(sizes, chunksize=1e6):
     data_root = '../data_generator/diving'
 
     missing_datasets = []
     for size in sizes:
 
         size_str = make_size_string(size)
+        chunk_str = make_size_string(chunksize)
 
-        file = '/data-' + size_str + '.parquet'
+        file = '/data-' + size_str + '-' + chunk_str + '.parquet'
 
         # Check if the dataset exists
         if not os.path.isfile(data_root + file):
@@ -155,7 +158,7 @@ def generate_datasets_if_needed(sizes):
         match_percentage = 0.05
         data_length = 100
         regex = '.*[tT][eE][rR][aA][tT][iI][dD][eE][ \t\n]+[dD][iI][vV][iI][nN][gG][ \t\n]+([sS][uU][bB])+[sS][uU][rR][fF][aA][cC][eE].*'
-        parquet_chunksize = 1e6
+        parquet_chunksize = chunksize
         parquet_compression = 'none'
 
         gen.regex_strings(
