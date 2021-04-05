@@ -134,20 +134,23 @@ The results of these benchmarks automatically get written to a data file in `../
 be downloaded to the same folder on your local machine for further processing using `scp`. The commands below are meant te 
 be run locally and NOT on AWS.
 
-If you have not done so already, clone this repository to your local machine.
+If you have not done so already, clone this repository to your local machine. If you don't plan on performing any runs
+locally, you can skip the `--recursive` part.
 ```
     git clone https://github.com/teratide/dask-accelerated.git --recursive
+    OR
+    git clone https://github.com/teratide/dask-accelerated.git
+```
+
+Next, we download the data file to `dask-accelerated/notebooks/`.
+
+```
     cd dask-accelerated/notebooks
-```
-
-Next, we download the data file to this location.
-
-```
     scp -i "PATH_TO_YOUR_KEY.pem" centos@YOUR_INSTANCE:/home/centos/dask-accelerated/notebooks/data.pickle ./data.pickle
 ```
 
 This folder contains a jupyter notebook `plots.ipynb` that, when run,
-generates all relevant plots and saves them in `../notebooks/plots`.
+generates all relevant plots and saves them in `./plots/`.
 
 An example of such results can be seen below.
 
