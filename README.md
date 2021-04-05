@@ -3,6 +3,8 @@ An accelerated version of Dask which substitutes operators in the Dask task grap
 This new operator can do it's evaluation using native libraries or by offloading the computation to an FPGA accelerator.
 
 ## Installation
+This section shows general directions as to how to install *dask accelerated*. For specific instructions as to how to
+install (and run) on AWS F1, see [here](AWS_DEMO.md).
 
 ### Requirements
 * [Apache Arrow 3.0+](https://arrow.apache.org/install/)
