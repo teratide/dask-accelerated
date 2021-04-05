@@ -1,5 +1,4 @@
-import benchmarks
-
+from benchmark import benchmarks
 
 if __name__ == '__main__':
 
