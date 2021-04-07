@@ -1,0 +1,13 @@
+name: build-and-test
+on: [pull_request]
+jobs:
+  test-re2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build dask_native
+          run: |
+            mkdir -p dask-accelerated/native/build
+            cd dask-accelerated/native/build
+            cmake ..
+            make
