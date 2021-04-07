@@ -24,6 +24,7 @@ jobs:
           sudo apt-get install -y libarrow-dev=$ARROW_VERSION-1
       - name: Build dask_native
         run: |
+          mkdir -p native/build
           cmake ..
           make
         working-directory: native/build
