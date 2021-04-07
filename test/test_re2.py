@@ -19,7 +19,7 @@ class TestRe2(unittest.TestCase):
         result as vanilla Dask for a small input dataset.
         This dataset easily fits into a single recordbatch
         """
-        self.run_and_assert_equal(64e3, 1e6)
+        self.run_and_assert_equal(8e3, 16e3)
 
 
     def test_large_input(self):
@@ -28,7 +28,7 @@ class TestRe2(unittest.TestCase):
        result as vanilla Dask for a large input dataset.
        This dataset fits into multiple recordbatches
        """
-        self.run_and_assert_equal(1e6, 64e3)
+        self.run_and_assert_equal(16e3, 8e3)
 
 if __name__ == '__main__':
     unittest.main()
