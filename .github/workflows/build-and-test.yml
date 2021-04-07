@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install arrow
         run: |
-          apt install -y -V libarrow-dev
+          sudo apt install -y -V libarrow-dev
       - name: Build dask_native
         run: |
           mkdir -p native/build
