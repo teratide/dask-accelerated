@@ -180,7 +180,6 @@ class CustomFilter:
         start = time.time()
         dask_native.tidreEval(
             number_of_records,
-            regex,
             unaligned_offset.address,
             unaligned_value.address,
             unaligned_offset.size,

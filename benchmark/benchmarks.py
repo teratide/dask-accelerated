@@ -42,7 +42,7 @@ def benchmark_tidre_batch_size(in_size, batch_size, batch_aggregates, repeats):
         # Make key more readable if size >= 1e6
         key = helpers.make_size_string(batch_aggregate*batch_size)
 
-        (vanilla_filter, re2_filter, tidre_filter) = benchmark_helpers.run_repeats(
+        (vanilla_filter, re2_filter, tidre_filter, tidre_filter_unaligned) = benchmark_helpers.run_repeats(
             in_size,
             batch_size,
             batch_aggregate,
@@ -104,7 +104,7 @@ def benchmark_tidre_in_size(in_sizes, batch_size, batch_aggregate, repeats):
         # Make key more readable if size >= 1e6
         key = helpers.make_size_string(in_size)
 
-        (vanilla_filter, re2_filter, tidre_filter) = benchmark_helpers.run_repeats(
+        (vanilla_filter, re2_filter, tidre_filter, tidre_filter_unaligned) = benchmark_helpers.run_repeats(
             in_size,
             batch_size,
             batch_aggregate,
