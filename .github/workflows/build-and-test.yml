@@ -30,7 +30,7 @@ jobs:
           cmake ..
           make
         working-directory: native/build
-      - name: Ldd dask_native
+      - name: Ldd dask_native.so
         run: |
           cd dask_accelerated
           ldd dask_native*
