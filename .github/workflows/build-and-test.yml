@@ -6,8 +6,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build dask_native
-          run: |
-            mkdir -p dask-accelerated/native/build
-            cd dask-accelerated/native/build
-            cmake ..
-            make
+        run: |
+          mkdir -p dask-accelerated/native/build
+          cd dask-accelerated/native/build
+          cmake ..
+          make
