@@ -16,6 +16,9 @@ jobs:
         with:
           python-version: '3.8'
           architecture: 'x64'
+      - uses: jwlawson/actions-setup-cmake@v1.8
+        with:
+          cmake-version: '3.16.x'
       - name: Install arrow
         run: |
           wget https://apache.bintray.com/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb
