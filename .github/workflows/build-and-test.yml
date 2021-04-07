@@ -1,30 +1,35 @@
 name: build-and-test
+
 on: [pull_request]
+
+env:
+  ARROW_VERSION: '3.0.0'
+
 jobs:
   test-re2:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout submodules
-        run: git submodule update --init --recursive
+        with:
+          submodules: true
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+          architecture: 'x64'
       - name: Install arrow
         run: |
-          sudo apt update
-          sudo apt install -y -V ca-certificates lsb-release wget
           wget https://apache.bintray.com/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb
-          sudo apt install -y -V ./apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb
-          sudo apt update
-          sudo apt install -y -V libarrow-dev
+          sudo apt-get install -y ./apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb
+          sudo apt-get update
+          sudo apt-get install -y libarrow-dev=$ARROW_VERSION-1
       - name: Build dask_native
         run: |
-          mkdir -p native/build
-          cd native/build
-          cmake ..
+          cmake
           make
-          cd ../..
+        working-directory: native
       - name: Install python dependencies
         run: |
-          pip3 install -e .
+          python -m pip install -e .
       - name: Run RE2 test
         run: |
-          python3 -m unittest test.test_re2
+          python -m unittest test.test_re2
