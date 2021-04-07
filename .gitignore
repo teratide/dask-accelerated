@@ -148,3 +148,6 @@ cython_debug/
 # Plots
 *.png
 *.pdf
+
+# Profiler results
+profiler/*.txt
