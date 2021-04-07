@@ -36,6 +36,7 @@ def benchmark_tidre_batch_size(in_size, batch_size, batch_aggregates, repeats):
     vanilla_filter = {}
     re2_filter = {}
     tidre_filter = {}
+    tidre_filter_unaligned = {}
 
     for batch_aggregate in batch_aggregates:
         # Make key more readable if size >= 1e6
@@ -49,13 +50,15 @@ def benchmark_tidre_batch_size(in_size, batch_size, batch_aggregates, repeats):
             key,
             vanilla_filter,
             re2_filter,
-            tidre_filter
+            tidre_filter,
+            tidre_filter_unaligned
         )
 
     data = {
         'vanilla_filter': vanilla_filter,
         're2_filter': re2_filter,
-        'tidre_filter': tidre_filter
+        'tidre_filter': tidre_filter,
+        'tidre_filter_unaligned': tidre_filter_unaligned
     }
 
     return data, name
@@ -95,6 +98,7 @@ def benchmark_tidre_in_size(in_sizes, batch_size, batch_aggregate, repeats):
     vanilla_filter = {}
     re2_filter = {}
     tidre_filter = {}
+    tidre_filter_unaligned = {}
 
     for in_size in in_sizes:
         # Make key more readable if size >= 1e6
@@ -108,13 +112,15 @@ def benchmark_tidre_in_size(in_sizes, batch_size, batch_aggregate, repeats):
             key,
             vanilla_filter,
             re2_filter,
-            tidre_filter
+            tidre_filter,
+            tidre_filter_unaligned
         )
 
     data = {
         'vanilla_filter': vanilla_filter,
         're2_filter': re2_filter,
-        'tidre_filter': tidre_filter
+        'tidre_filter': tidre_filter,
+        'tidre_filter_unaligned': tidre_filter_unaligned
     }
 
     return data, name
