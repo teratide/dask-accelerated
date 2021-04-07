@@ -83,8 +83,13 @@ class CustomFilter:
         assert 0 not in {offset_alignment, value_alignment}
 
         # Initialize an empty selection vector and extract it's arrow buffers
-        out = pandas.array([False] * number_of_records, dtype=bool, copy=False)
+        out = pandas.array([False] * (number_of_records + 1), dtype=bool, copy=False)
         out_buffers = pyarrow.Array.from_pandas(out).buffers()
+        out_buffers[1] = out_buffers[1].slice(offset=1)
+
+        # Verify that the buffers are indeed not aligned to 64 bytes
+        out_alignment = out_buffers[1].address % 64
+        assert out_alignment != 0
 
         # Do a native evaluation of the regex matching
         start = time.time()
@@ -163,8 +168,13 @@ class CustomFilter:
         assert 0 not in {offset_alignment, value_alignment}
 
         # Initialize an empty selection vector and extract it's arrow buffers
-        out = pandas.array([False] * number_of_records, dtype=bool, copy=False)
+        out = pandas.array([False] * (number_of_records + 1), dtype=bool, copy=False)
         out_buffers = pyarrow.Array.from_pandas(out).buffers()
+        out_buffers[1] = out_buffers[1].slice(offset=1)
+
+        # Verify that the buffers are indeed not aligned to 64 bytes
+        out_alignment = out_buffers[1].address % 64
+        assert out_alignment != 0
 
         # Do a native evaluation of the regex matching
         start = time.time()
