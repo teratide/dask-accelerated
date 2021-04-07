@@ -30,6 +30,11 @@ jobs:
           cmake ..
           make
         working-directory: native/build
+      - name: Ldd dask_native
+        run: |
+          cd dask_accelerated
+          ldd dask_native*
+          cd ..
       - name: Install python dependencies
         run: |
           python -m pip install -e .
