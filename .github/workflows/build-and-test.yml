@@ -24,7 +24,7 @@ jobs:
           cd ../..
       - name: Install python dependencies
         run: |
-          python3 install -e .
+          pip3 install -e .
       - name: Run RE2 test
         run: |
           python3 -m unittest test.test_re2
