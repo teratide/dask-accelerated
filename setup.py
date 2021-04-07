@@ -12,6 +12,7 @@ setup(
         'pandas',
         'xeger',
         'progressbar2',
-        'matplotlib'
+        'matplotlib',
+        'jupyter_contrib_nbextensions'
     ]
 )
