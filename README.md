@@ -1,4 +1,9 @@
 # Dask Accelerated
+
+------------------
+
+[![test](https://github.com/teratide/dask-accelerated/actions/workflows/test.yml/badge.svg)](https://github.com/teratide/dask-accelerated/actions/workflows/test.yml)
+
 An accelerated version of Dask which substitutes operators in the Dask task graph with an accelerated version.
 This new operator can do it's evaluation using native libraries or by offloading the computation to an FPGA accelerator.
 
