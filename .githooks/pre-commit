@@ -2,4 +2,4 @@
 
 jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace notebooks/*.ipynb
 
-git add .
+git add notebooks/*.ipynb
