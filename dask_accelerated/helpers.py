@@ -38,6 +38,23 @@ def run_re2(in_size, batch_size=1e6, split_row_groups=True):
 
     return res, durations
 
+
+# Run the regex query on Dask + RE2 (unaligned memory buffers)
+def run_re2_unaligned(in_size, batch_size=1e6, split_row_groups=True):
+
+    (result, graph) = get_result_and_graph(in_size, batch_size, split_row_groups, 'Dask + RE2 (unaligned)')
+
+    # Use the custom str match operator which also records filter time
+    substitute_operator = CustomFilter()
+
+    # Optimize the task graph by substituting the RE2 regex operator
+    dsk = optimize_graph_re2(graph, substitute_operator.custom_re2_unaligned)
+
+    (res, durations) = run_and_record_durations(dsk, result, substitute_operator)
+
+    return res, durations
+
+
 # Run the regex query on Dask + Tidre
 def run_tidre(in_size, batch_size=1e6, split_row_groups=True):
 
@@ -48,6 +65,22 @@ def run_tidre(in_size, batch_size=1e6, split_row_groups=True):
 
     # Optimize the task graph by substituting the RE2 regex operator
     dsk = optimize_graph_re2(graph, substitute_operator.custom_tidre)
+
+    (res, durations) = run_and_record_durations(dsk, result, substitute_operator)
+
+    return res, durations
+
+
+# Run the regex query on Dask + Tidre (unaligned memory buffers)
+def run_tidre_unaligned(in_size, batch_size=1e6, split_row_groups=True):
+
+    (result, graph) = get_result_and_graph(in_size, batch_size, split_row_groups, 'Dask + Tidre (unaligned)')
+
+    # Use the custom str match operator which also records filter time
+    substitute_operator = CustomFilter()
+
+    # Optimize the task graph by substituting the RE2 regex operator
+    dsk = optimize_graph_re2(graph, substitute_operator.custom_tidre_unaligned)
 
     (res, durations) = run_and_record_durations(dsk, result, substitute_operator)
 

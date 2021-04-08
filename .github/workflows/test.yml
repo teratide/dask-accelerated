@@ -1,0 +1,47 @@
+name: test
+
+on: [pull_request]
+
+env:
+  ARROW_VERSION: '3.0.0'
+
+jobs:
+  test-re2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+          architecture: 'x64'
+      - uses: jwlawson/actions-setup-cmake@v1.8
+        with:
+          cmake-version: '3.16.x'
+      - name: Install arrow
+        run: |
+          wget https://apache.bintray.com/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb
+          sudo apt-get install -y ./apache-arrow-archive-keyring-latest-$(lsb_release --codename --short).deb
+          sudo apt-get update
+          sudo apt-get install -y libarrow-dev=$ARROW_VERSION-1
+      - name: Make build directory
+        run: |
+          mkdir -p native/build
+      - name: Build dask_native
+        run: |
+          cmake ..
+          make
+        working-directory: native/build
+      - name: Ldd dask_native.so
+        run: |
+          cd dask_accelerated
+          ldd dask_native*
+          cd ..
+          cmake --version
+      - name: Install python dependencies
+        run: |
+          python -m pip install -e .
+      - name: Run RE2 test
+        run: |
+          python -m unittest test.test_re2
