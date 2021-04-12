@@ -43,6 +43,7 @@ if __name__ == '__main__':
     helpers.generate_datasets_if_needed([in_size], batch_size)
 
     if args.vanilla:
+        (res, dur) = helpers.run_vanilla(in_size, batch_size, batch_aggregate)
         filter_duration = 0
         for i in range(repeats):
             (res, dur) = helpers.run_vanilla(in_size, batch_size, batch_aggregate)
@@ -51,6 +52,7 @@ if __name__ == '__main__':
         print("Ran vanilla ", repeats, " times, ave total filter: ", filter_duration, " seconds")
 
     if args.re2:
+        (res, dur) = helpers.run_re2(in_size, batch_size, batch_aggregate)
         filter_duration = 0
         for i in range(repeats):
             (res, dur) = helpers.run_re2(in_size, batch_size, batch_aggregate)
@@ -59,6 +61,7 @@ if __name__ == '__main__':
         print("Ran RE2 ", repeats, " times, ave total filter: ", filter_duration, " seconds")
 
     if args.tidre:
+        (res, dur) = helpers.run_tidre(in_size, batch_size, batch_aggregate)
         filter_duration = 0
         for i in range(repeats):
             (res, dur) = helpers.run_tidre(in_size, batch_size, batch_aggregate)
