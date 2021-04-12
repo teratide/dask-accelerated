@@ -148,12 +148,13 @@ def run_and_record_durations(dsk, result, substitute_operator):
 
     total_duration_in_seconds = end - start
 
-    print("Computed ", res, " in ", total_duration_in_seconds, " seconds")
-
     filter_durations = np.array(substitute_operator.durations)
     durations = construct_durations(total_duration_in_seconds, filter_durations)
 
+    print("Computed ", res, " in ", total_duration_in_seconds, " seconds\tfilter: ", durations['filter']['total'], " seconds")
+
     return res, durations
+
 
 def construct_durations(total, filter):
 
