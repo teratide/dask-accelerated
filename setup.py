@@ -7,7 +7,7 @@ setup(
     install_requires=[
         'cython',
         'dask',
-        'dask[distributed]'
+        'dask[distributed]',
         'dask[dataframe]',
         'pyarrow',
         'pandas',
