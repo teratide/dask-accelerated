@@ -1,4 +1,5 @@
 from dask_accelerated_worker.accelerated_worker import AcceleratedWorker
+from dask.distributed import Worker
 from tornado.ioloop import IOLoop
 import asyncio
 import sys
@@ -6,7 +7,7 @@ import signal
 import logging
 logger = logging.getLogger(__name__)
 
-scheduler_address = 'tcp://127.0.0.1:38509'
+scheduler_address = 'tcp://127.0.0.1:37983'
 
 
 def install_signal_handlers(loop=None, cleanup=None):

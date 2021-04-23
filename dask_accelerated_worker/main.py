@@ -1,6 +1,7 @@
 # TODO: include the testing and functionalities of this file into main.py
 
 from dask.distributed import Client
+from dask_accelerated import helpers
 import asyncio
 import logging
 logger = logging.getLogger(__name__)
@@ -29,18 +30,23 @@ def main():
 
     input("Press Enter to submit task graph...")
 
-    # Define a simple function and
-    # submit a future on the client
+    in_size = 64e3
+    batch_size = 16e3
 
-    # Increment integer values by 1
-    def inc(x):
-        return x + 1
+    # The actual batch size in computed by aggregating
+    # multiple chunks of 1e3 records into the desired batch size
+    batch_aggregate = int(batch_size / 1e3)
+    batch_size = 1e3
 
-    # Y holds the future to the result
-    y = client.submit(inc, 11)
+    # Make sure the desired dataset exists
+    helpers.generate_datasets_if_needed([in_size], batch_size)
 
-    input("Press Enter to trigger computation...")
-    print(y.result())
+    lazy_result = helpers.get_lazy_result(in_size, batch_size, batch_aggregate)
+    graph = lazy_result.__dask_graph__()
+
+    res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
+
+    print(res)
 
     input("Press Enter to close the client...")
     client.close()
