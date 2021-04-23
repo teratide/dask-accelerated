@@ -15,6 +15,8 @@ setup(
         'xeger',
         'progressbar2',
         'matplotlib',
-        'jupyter_contrib_nbextensions'
+        'jupyter_contrib_nbextensions',
+        'flake8',
+        'tornado'
     ]
 )
