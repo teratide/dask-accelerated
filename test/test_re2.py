@@ -21,7 +21,6 @@ class TestRe2(unittest.TestCase):
         """
         self.run_and_assert_equal(16e3, 32e3)
 
-
     def test_large_input(self):
         """
        Test that the re2 implementation computes the same
@@ -50,7 +49,6 @@ class TestRe2Unaligned(unittest.TestCase):
         """
         self.run_and_assert_equal(16e3, 32e3)
 
-
     def test_large_input(self):
         """
        Test that the re2 implementation computes the same
@@ -58,6 +56,7 @@ class TestRe2Unaligned(unittest.TestCase):
        This dataset fits into multiple recordbatches
        """
         self.run_and_assert_equal(32e3, 16e3)
+
 
 if __name__ == '__main__':
     unittest.main()

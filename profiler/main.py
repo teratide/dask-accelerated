@@ -12,6 +12,7 @@ parser.add_argument('--tidre', dest='tidre', action='store_const',
 
 args = parser.parse_args()
 
+
 def profile_and_save(func, in_size, batch_size, out_file):
 
     # Create a new profiler and enable it,
@@ -45,5 +46,3 @@ if __name__ == '__main__':
 
     if args.tidre:
         profile_and_save(helpers.run_tidre, in_size, batch_size, 'tidre_prof.txt')
-
-

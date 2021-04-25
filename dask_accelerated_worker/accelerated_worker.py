@@ -28,7 +28,7 @@ class AcceleratedWorker(Worker):
         **kwargs2,
     ):
         regex = re.compile('.*str-match.*')
-        if re.match(regex, key) != None:
+        if re.match(regex, key) is not None:
             # This task matches the operation we want to perform on fpga
             func = pickle.loads(function)
 

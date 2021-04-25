@@ -1,5 +1,5 @@
 from dask_accelerated_worker.accelerated_worker import AcceleratedWorker
-from dask.distributed import Worker
+# from dask.distributed import Worker
 from tornado.ioloop import IOLoop
 import asyncio
 import sys
