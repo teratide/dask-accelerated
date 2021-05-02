@@ -32,7 +32,7 @@ class AcceleratedWorker(Worker):
             # This task matches the operation we want to perform on fpga
             func = pickle.loads(function)
 
-            substitute_op = CustomFilter().custom_re2
+            substitute_op = CustomFilter().custom_tidre
 
             dsk = func.dsk
             vals = dsk[func.outkey]

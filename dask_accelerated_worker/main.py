@@ -15,22 +15,17 @@ def main():
     client = Client()
     scheduler = client.cluster.scheduler
     print('Dashboard available at', client.dashboard_link)
+    print('Scheduler address: ', scheduler.address)
 
     loop = asyncio.get_event_loop()
 
     input("Press Enter to remove non accelerated workers...")
 
     # Remove the non-accelerated workers
-    accelerated_names = [
-        'accelerated-0',
-        'accelerated-1',
-        'accelerated-2',
-        'accelerated-3'
-    ]
     for i in range(3):
         workers = scheduler.workers
         for worker in workers:
-            if workers[worker].name not in accelerated_names:
+            if str(workers[worker].name).split('-')[0] != 'accelerated':
                 loop.run_until_complete(
                     scheduler.remove_worker(address=worker)
                 )
@@ -44,40 +39,45 @@ def main():
     batch_aggregate = 16
     repeats = 3
 
-    data = {}
+    # Make sure the desired dataset exists
+    helpers.generate_datasets_if_needed(in_sizes, batch_size)
 
-    for in_size in in_sizes:
+    # Keep running the benchmark until the user quits the client
+    while True:
+        data = {}
 
-        # Make sure the desired dataset exists
-        helpers.generate_datasets_if_needed([in_size], batch_size)
+        for in_size in in_sizes:
 
-        lazy_result = helpers.get_lazy_result(in_size, batch_size, batch_aggregate)
-        graph = lazy_result.__dask_graph__()
+            lazy_result = helpers.get_lazy_result(in_size, batch_size, batch_aggregate)
+            graph = lazy_result.__dask_graph__()
 
-        data[in_size] = 0
+            data[in_size] = 0
 
-        for i in range(repeats):
+            for i in range(repeats):
 
-            start = time.time()
-            res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
-            end = time.time()
+                start = time.time()
+                res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
+                end = time.time()
 
-            duration = end - start
-            data[in_size] += duration
-            print('Computed ', res, ' in ', duration, ' seconds')
+                duration = end - start
+                data[in_size] += duration
+                print('Computed ', res, ' in ', duration, ' seconds')
 
-        data[in_size] = data[in_size] / repeats
+            data[in_size] = data[in_size] / repeats
 
-    workers = scheduler.workers
+        workers = scheduler.workers
 
-    timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
-    # Add timestamp to data
-    data['timestamp'] = timestamp
-    data_root = '../notebooks/'
-    with open(data_root + 'data-' + str(len(workers)) + '.pickle', 'wb') as f:
-        pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+        timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
+        # Add timestamp to data
+        data['timestamp'] = timestamp
+        data_root = '../notebooks/'
+        with open(data_root + 'data-' + str(len(workers)) + '.pickle', 'wb') as f:
+            pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
 
-    input("Press Enter to close the client...")
+        user_input = input("Press Enter to run again or send 'q' to close the client...")
+        if user_input == 'q':
+            break
+
     client.close()
 
 

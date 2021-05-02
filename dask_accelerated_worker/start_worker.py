@@ -5,9 +5,17 @@ import asyncio
 import sys
 import signal
 import logging
+import argparse
+import time
 logger = logging.getLogger(__name__)
 
-scheduler_address = 'tcp://127.0.0.1:37983'
+# scheduler_address = 'tcp://127.0.0.1:37983'
+
+parser = argparse.ArgumentParser(description='Dask Accelerated Worker.')
+parser.add_argument('scheduler_address', metavar='S', type=str,
+                    help='string containing the ip and port of the scheduler. Example: tcp://127.0.0.1:37983')
+
+args = parser.parse_args()
 
 
 def install_signal_handlers(loop=None, cleanup=None):
@@ -41,6 +49,8 @@ def install_signal_handlers(loop=None, cleanup=None):
 
 def main():
 
+    scheduler_address = args.scheduler_address
+
     # Start a new worker based on the AcceleratedWorker class
     # This worker automatically connects to the scheduler and gets added to the worker pool
     kwargs = {
@@ -56,6 +66,8 @@ def main():
         'lifetime_stagger': '0 seconds',
         'lifetime_restart': False
     }
+
+    worker_name = 'accelerated-' + str(time.time())
 
     loop = IOLoop.current()
 
@@ -73,7 +85,7 @@ def main():
             port=None,
             dashboard=True,
             dashboard_address=':0',
-            name='accelerated',
+            name=worker_name,
             **kwargs
         )
     )
