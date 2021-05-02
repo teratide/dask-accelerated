@@ -9,6 +9,7 @@ setup(
         'dask',
         'dask[distributed]',
         'dask[dataframe]',
+        'bokeh',
         'jupyter-server-proxy',
         'pyarrow',
         'pandas',
