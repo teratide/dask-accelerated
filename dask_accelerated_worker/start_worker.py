@@ -1,5 +1,5 @@
 from dask_accelerated_worker.accelerated_worker import AcceleratedWorker
-# from dask.distributed import Worker
+from dask.distributed import Worker
 from tornado.ioloop import IOLoop
 import asyncio
 import sys
@@ -9,11 +9,13 @@ import argparse
 import time
 logger = logging.getLogger(__name__)
 
-# scheduler_address = 'tcp://127.0.0.1:37983'
 
 parser = argparse.ArgumentParser(description='Dask Accelerated Worker.')
 parser.add_argument('scheduler_address', metavar='S', type=str,
                     help='string containing the ip and port of the scheduler. Example: tcp://127.0.0.1:37983')
+parser.add_argument('--accelerated', dest='accelerated', action='store_const',
+                    const=True, default=False,
+                    help='use the accelerated worker implementation. (default: do not use)')
 
 args = parser.parse_args()
 
@@ -51,6 +53,13 @@ def main():
 
     scheduler_address = args.scheduler_address
 
+    if args.accelerated:
+        t = AcceleratedWorker
+        worker_name = 'accelerated-' + str(time.time())
+    else:
+        t = Worker
+        worker_name = 'vanilla-' + str(time.time())
+
     # Start a new worker based on the AcceleratedWorker class
     # This worker automatically connects to the scheduler and gets added to the worker pool
     kwargs = {
@@ -67,13 +76,11 @@ def main():
         'lifetime_restart': False
     }
 
-    worker_name = 'accelerated-' + str(time.time())
-
     loop = IOLoop.current()
 
     async_loop = asyncio.get_event_loop()
-    accelerated_worker = async_loop.run_until_complete(
-        AcceleratedWorker(
+    worker = async_loop.run_until_complete(
+        t(
             scheduler_address,
             scheduler_file=None,
             nthreads=1,
@@ -90,7 +97,7 @@ def main():
         )
     )
 
-    nannies = [accelerated_worker]
+    nannies = [worker]
     nanny = True
 
     async def close_all():
