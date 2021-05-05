@@ -7,12 +7,20 @@ from datetime import datetime
 import time
 import asyncio
 import logging
+import argparse
 logger = logging.getLogger(__name__)
+
+
+parser = argparse.ArgumentParser(description='Dask Accelerated Worker.')
+parser.add_argument('scheduler_address', metavar='S', type=str,
+                    help='string containing the ip and port of the scheduler. Example: 127.0.0.1:37983')
+
+args = parser.parse_args()
 
 
 def main():
     # Start a client in local cluster mode and expose the underlying scheduler
-    client = Client()
+    client = Client(args.scheduler_address)
     scheduler = client.cluster.scheduler
     print('Dashboard available at', client.dashboard_link)
     print('Scheduler address: ', scheduler.address)
