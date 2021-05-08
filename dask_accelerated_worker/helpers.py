@@ -1,6 +1,8 @@
 from dask.distributed import Scheduler
 from tornado.ioloop import IOLoop
+from datetime import datetime
 import asyncio
+import pickle
 
 
 def get_scheduler():
@@ -63,3 +65,15 @@ def remove_non_accelerated_workers(scheduler):
                 )
 
     loop.close()
+
+
+def save_data(data):
+
+    # Add timestamp to data
+    timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
+    data['timestamp'] = timestamp
+
+    # Save data to disk
+    data_root = '../notebooks/'
+    with open(data_root + 'data-workers.pickle', 'wb') as f:
+        pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
