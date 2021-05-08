@@ -16,7 +16,7 @@ in_sizes = [256e3, 512e3, 1024e3, 2048e3, 4096e3]
 batch_size = 1e3
 const_batch_aggregate = 1e3
 batch_aggregates = [64, 128, 256, 512, 1024, 2048, 4096, 8192]
-repeats = 5
+repeats = 1
 
 
 def main():
@@ -43,9 +43,10 @@ def main():
     # Make sure the desired dataset exists
     helpers.generate_datasets_if_needed(in_sizes, batch_size)
 
+    data = {}
+
     # Keep running the benchmark until the user quits the client
     while True:
-        data = {}
         data_in_size = {}
         data_batch_size = {}
 
@@ -108,8 +109,10 @@ def main():
             if str(scheduler.workers[worker].name).split('-')[0] == 'accelerated':
                 accelerated_workers += 1
 
-        data[str(accelerated_workers) + '-accelerated']['in_size'] = data_in_size
-        data[str(accelerated_workers) + '-accelerated']['batch_size'] = data_batch_size
+        data[str(accelerated_workers)] = {
+            'in_size': data_in_size,
+            'batch_size': data_batch_size
+        }
 
         # Add timestamp to data
         timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
