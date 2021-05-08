@@ -1,4 +1,4 @@
-from dask_accelerated_worker.accelerated_worker import AcceleratedWorker
+from dask_accelerated_worker.accelerated_worker import RE2Worker, TidreWorker
 from dask.distributed import Worker
 from tornado.ioloop import IOLoop
 from dask_accelerated_worker.utils import install_signal_handlers
@@ -14,9 +14,8 @@ logger = logging.getLogger(__name__)
 parser = argparse.ArgumentParser(description='Dask Accelerated Worker.')
 parser.add_argument('scheduler_address', metavar='S', type=str,
                     help='string containing the ip and port of the scheduler. Example: tcp://127.0.0.1:37983')
-parser.add_argument('--accelerated', dest='accelerated', action='store_const',
-                    const=True, default=False,
-                    help='use the accelerated worker implementation. (default: do not use)')
+parser.add_argument('type', metavar='T', type=str,
+                    help='string containing the type of the worker. Can be `tidre`, `re2`, or `vanilla`.')
 
 args = parser.parse_args()
 
@@ -25,12 +24,20 @@ def main():
 
     scheduler_address = args.scheduler_address
 
-    if args.accelerated:
-        t = AcceleratedWorker
+    if args.type == 'tidre':
+        print('Starting Tidre worker')
+        t = TidreWorker
         worker_name = 'accelerated-' + str(time.time())
-    else:
+    elif args.type == 're2':
+        print('Starting RE2 worker')
+        t = RE2Worker
+        worker_name = 'accelerated-' + str(time.time())
+    elif args.type == 'vanilla':
+        print('Starting vanilla worker')
         t = Worker
         worker_name = 'vanilla-' + str(time.time())
+    else:
+        raise Exception("Worker type not valid.")
 
     # Start a new worker based on the AcceleratedWorker class
     # This worker automatically connects to the scheduler and gets added to the worker pool

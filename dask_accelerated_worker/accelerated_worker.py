@@ -9,8 +9,59 @@ from dask_accelerated.operators import CustomFilter
 logger = logging.getLogger(__name__)
 
 
-# Create an accelerated worker class based on the original worker class
-class AcceleratedWorker(Worker):
+# Create an RE2 accelerated worker class based on the original worker class
+class RE2Worker(Worker):
+
+    def add_task(
+        self,
+        key,
+        function=None,
+        args=None,
+        kwargs=None,
+        task=worker.no_value,
+        who_has=None,
+        nbytes=None,
+        priority=None,
+        duration=None,
+        resource_restrictions=None,
+        actor=False,
+        **kwargs2,
+    ):
+        regex = re.compile('.*str-match.*')
+        if re.match(regex, key) is not None:
+            # This task matches the operation we want to perform on fpga
+            func = pickle.loads(function)
+
+            substitute_op = CustomFilter().custom_re2
+
+            dsk = func.dsk
+            vals = dsk[func.outkey]
+            vals_args = vals[3]
+            new_vals_args = (vals_args[0], [['_func', substitute_op], vals_args[1][1]])
+            new_vals = (vals[0], vals[1], vals[2], new_vals_args)
+            dsk[func.outkey] = new_vals
+
+            new_func = SubgraphCallable(dsk, func.outkey, func.inkeys, "regex_callable")
+            function = pickle.dumps(new_func)
+
+        super().add_task(
+            key,
+            function,
+            args,
+            kwargs,
+            task,
+            who_has,
+            nbytes,
+            priority,
+            duration,
+            resource_restrictions,
+            actor,
+            **kwargs2,
+        )
+
+
+# Create a tidre accelerated worker class based on the original worker class
+class TidreWorker(Worker):
 
     def add_task(
         self,
