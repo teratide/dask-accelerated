@@ -108,8 +108,8 @@ def main():
             if str(scheduler.workers[worker].name).split('-')[0] == 'accelerated':
                 accelerated_workers += 1
 
-        data[str(accelerated_workers)]['in_size'] = data_in_size
-        data[str(accelerated_workers)]['batch_size'] = data_batch_size
+        data[str(accelerated_workers) + '-accelerated']['in_size'] = data_in_size
+        data[str(accelerated_workers) + '-accelerated']['batch_size'] = data_batch_size
 
         # Add timestamp to data
         timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
