@@ -1,31 +1,93 @@
 # TODO: include the testing and functionalities of this file into main.py
 
-from dask.distributed import Client
+from dask.distributed import Client, Scheduler
 from dask_accelerated import helpers
+from dask_accelerated_worker.utils import install_signal_handlers
 import pickle
 from datetime import datetime
 import time
 import asyncio
 import logging
-import argparse
+from tornado.ioloop import IOLoop
+from threading import Thread
 logger = logging.getLogger(__name__)
 
 
-parser = argparse.ArgumentParser(description='Dask Accelerated Worker.')
-parser.add_argument('scheduler_address', metavar='S', type=str,
-                    help='string containing the ip and port of the scheduler. Example: 127.0.0.1:37983')
+def get_scheduler():
+    kwargs = {
+        'preload': (),
+        'preload_argv': (),
+        'interface': None,
+        'protocol': None,
+        'scheduler_file': '',
+        'idle_timeout': None
+    }
 
-args = parser.parse_args()
+    loop = IOLoop.current()
+    sec = {}
+    host = ''
+    port = 8786
+    dashboard = True
+    dashboard_address = 8787
+    dashboard_prefix = ''
+
+    scheduler = Scheduler(
+        loop=loop,
+        security=sec,
+        host=host,
+        port=port,
+        dashboard=dashboard,
+        dashboard_address=dashboard_address,
+        http_prefix=dashboard_prefix,
+        **kwargs
+    )
+
+    return scheduler, loop
+
+
+def run_scheduler(scheduler, loop):
+
+    async def run():
+        await scheduler
+        await scheduler.finished()
+
+    loop.run_sync(run)
+
+    # install_signal_handlers(loop)
+    #
+    # async def run():
+    #     await scheduler
+    #     await scheduler.finished()
+    #
+    # try:
+    #     loop.run_sync(run)
+    # finally:
+    #     scheduler.stop()
+    #
+    #     logger.info("End scheduler at %r", scheduler.address)
 
 
 def main():
     # Start a client in local cluster mode and expose the underlying scheduler
-    client = Client(args.scheduler_address)
-    scheduler = client.cluster.scheduler
-    print('Dashboard available at', client.dashboard_link)
+    # client = Client(args.scheduler_address)
+    # scheduler = client.cluster.scheduler
+    # print('Dashboard available at', client.dashboard_link)
+    # print('Scheduler address: ', scheduler.address)
+
+    (scheduler, scheduler_loop) = get_scheduler()
+
+    thread = Thread(target=run_scheduler, args=(scheduler, scheduler_loop, ))
+    thread.start()
+
+    time.sleep(5)
+
+    # print('Dashboard available at', scheduler.dashboard_link)
     print('Scheduler address: ', scheduler.address)
 
-    loop = asyncio.get_event_loop()
+    client = Client(scheduler.address)
+
+    # loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
 
     input("Press Enter to remove non accelerated workers...")
 
@@ -38,7 +100,7 @@ def main():
                     scheduler.remove_worker(address=worker)
                 )
 
-    loop.close()
+    # loop.close()
 
     input("Press Enter to perform benchmarks...")
 
