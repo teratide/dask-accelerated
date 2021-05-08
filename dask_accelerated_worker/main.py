@@ -56,7 +56,7 @@ def main():
             graph = lazy_result.__dask_graph__()
 
             # Dry run
-            res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
+            # res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
 
             data_in_size[in_size] = 0
 
@@ -83,7 +83,7 @@ def main():
             graph = lazy_result.__dask_graph__()
 
             # Dry run
-            res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
+            # res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
 
             data_batch_size[batch_aggregate] = 0
 
