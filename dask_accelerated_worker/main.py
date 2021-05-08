@@ -43,6 +43,8 @@ def main():
     # Make sure the desired dataset exists
     helpers.generate_datasets_if_needed(benchmark_config['in_sizes'], benchmark_config['batch_size'])
 
+    benchmarks.warm_workers(client, scheduler, benchmark_config)
+
     data = {}
 
     # Keep running the benchmark until the user quits the client

@@ -2,6 +2,29 @@ from dask_accelerated import helpers
 import time
 
 
+def warm_workers(client, scheduler, benchmark_config):
+
+    print('Warming workers... ', end='')
+
+    for in_size in benchmark_config['in_sizes']:
+
+        lazy_result = helpers.get_lazy_result(
+            in_size,
+            benchmark_config['batch_size'],
+            in_size
+        )
+
+        graph = lazy_result.__dask_graph__()
+
+        # Scheduler does round robin
+        # so we can run this for each worker in the pool
+        for worker in scheduler.workers:
+            # Dry run
+            res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
+
+    print('done')
+
+
 def run_all_benchmarks(client, scheduler, data, benchmark_config):
 
     data_in_size = run_in_benchmark(client, benchmark_config)
