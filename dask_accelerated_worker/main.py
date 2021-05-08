@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 # Benchmark configuration
 const_in_size = 4096e3
-in_sizes = [512e3, 1024e3, 2048e3, 4096e3, 8192e3]
+in_sizes = [256e3, 512e3, 1024e3, 2048e3, 4096e3]
 batch_size = 1e3
 const_batch_aggregate = 1e3
 batch_aggregates = [64, 128, 256, 512, 1024, 2048, 4096, 8192]
