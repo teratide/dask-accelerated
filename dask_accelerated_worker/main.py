@@ -77,7 +77,11 @@ def main():
 
                 duration = end - start
                 data_in_size[in_size] += duration
-                print('In: ', in_size, '\tBatch: ', batch_size * const_batch_aggregate, '\tComputed ', res, ' in ', duration, ' seconds')
+                print(
+                    'In: ', in_size,
+                    '\tBatch: ', batch_size * const_batch_aggregate,
+                    '\tComputed ', res, ' in ', duration, ' seconds'
+                )
 
             data_in_size[in_size] = data_in_size[in_size] / repeats
 
@@ -99,7 +103,11 @@ def main():
 
                 duration = end - start
                 data_batch_size[batch_aggregate] += duration
-                print('In: ', const_in_size, '\tBatch: ', batch_size * batch_aggregate, 'Computed ', res, ' in ', duration, ' seconds')
+                print(
+                    'In: ', const_in_size,
+                    '\tBatch: ', batch_size * batch_aggregate,
+                    'Computed ', res, ' in ', duration, ' seconds'
+                )
 
             data_batch_size[batch_aggregate] = data_batch_size[batch_aggregate] / repeats
 
