@@ -1,115 +1,44 @@
-# TODO: include the testing and functionalities of this file into main.py
-
-from dask.distributed import Client, Scheduler
+from dask.distributed import Client
 from dask_accelerated import helpers
-from dask_accelerated_worker.utils import install_signal_handlers
+from dask_accelerated_worker import helpers as worker_helpers
 import pickle
 from datetime import datetime
 import time
-import asyncio
-import logging
-from tornado.ioloop import IOLoop
 from threading import Thread
+import logging
+
 logger = logging.getLogger(__name__)
 
 
-def get_scheduler():
-    kwargs = {
-        'preload': (),
-        'preload_argv': (),
-        'interface': None,
-        'protocol': None,
-        'scheduler_file': '',
-        'idle_timeout': None
-    }
-
-    loop = IOLoop.current()
-    sec = {}
-    host = ''
-    port = 8786
-    dashboard = True
-    dashboard_address = 8787
-    dashboard_prefix = ''
-
-    scheduler = Scheduler(
-        loop=loop,
-        security=sec,
-        host=host,
-        port=port,
-        dashboard=dashboard,
-        dashboard_address=dashboard_address,
-        http_prefix=dashboard_prefix,
-        **kwargs
-    )
-
-    return scheduler, loop
-
-
-def run_scheduler(scheduler, loop):
-
-    async def run():
-        await scheduler
-        await scheduler.finished()
-
-    loop.run_sync(run)
-
-    # install_signal_handlers(loop)
-    #
-    # async def run():
-    #     await scheduler
-    #     await scheduler.finished()
-    #
-    # try:
-    #     loop.run_sync(run)
-    # finally:
-    #     scheduler.stop()
-    #
-    #     logger.info("End scheduler at %r", scheduler.address)
+# Benchmark configuration
+const_in_size = 4096e3
+in_sizes = [512e3, 1024e3, 2048e3, 4096e3, 8192e3]
+batch_size = 1e3
+const_batch_aggregate = 1e3
+batch_aggregates = [64, 128, 256, 512, 1024, 2048, 4096, 8192]
+repeats = 5
 
 
 def main():
-    # Start a client in local cluster mode and expose the underlying scheduler
-    # client = Client(args.scheduler_address)
-    # scheduler = client.cluster.scheduler
-    # print('Dashboard available at', client.dashboard_link)
-    # print('Scheduler address: ', scheduler.address)
 
-    (scheduler, scheduler_loop) = get_scheduler()
-
-    thread = Thread(target=run_scheduler, args=(scheduler, scheduler_loop, ))
+    # Start a dask scheduler
+    (scheduler, scheduler_loop) = worker_helpers.get_scheduler()
+    thread = Thread(target=worker_helpers.run_scheduler, args=(scheduler, scheduler_loop,))
     thread.start()
 
-    time.sleep(5)
+    # Wait 1 second to ensure the scheduler is running
+    time.sleep(1)
 
-    # print('Dashboard available at', scheduler.dashboard_link)
-    print('Scheduler address: ', scheduler.address)
-
+    # Start a client and connect it to the scheduler
     client = Client(scheduler.address)
 
-    # loop = asyncio.get_event_loop()
-    loop = asyncio.new_event_loop()
+    print('Dashboard available at', client.dashboard_link)
+    print('Scheduler address: ', scheduler.address)
 
-    input("Press Enter to remove non accelerated workers...")
-
-    # Remove the non-accelerated workers
-    for i in range(3):
-        workers = scheduler.workers
-        for worker in workers:
-            if str(workers[worker].name).split('-')[0] != 'accelerated':
-                loop.run_until_complete(
-                    scheduler.remove_worker(address=worker)
-                )
-
-    # loop.close()
+    # input("Press Enter to remove non accelerated workers...")
+    # worker_helpers.remove_non_accelerated_workers(scheduler)
 
     input("Press Enter to perform benchmarks...")
-
-    const_in_size = 4096e3
-    in_sizes = [512e3, 1024e3, 2048e3, 4096e3, 8192e3]
-    batch_size = 1e3
-    const_batch_aggregate = 1e3
-    batch_aggregates = [64, 128, 256, 512, 1024, 2048, 4096, 8192]
-    repeats = 5
 
     # Make sure the desired dataset exists
     helpers.generate_datasets_if_needed(in_sizes, batch_size)
@@ -176,7 +105,7 @@ def main():
         # Count the number of accelerated workers
         accelerated_workers = 0
         for worker in scheduler.workers:
-            if str(workers[worker].name).split('-')[0] == 'accelerated':
+            if str(scheduler.workers[worker].name).split('-')[0] == 'accelerated':
                 accelerated_workers += 1
 
         data[str(accelerated_workers)]['in_size'] = data_in_size
