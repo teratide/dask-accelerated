@@ -20,7 +20,7 @@ def warm_workers(client, scheduler, benchmark_config):
         # so we can run this for each worker in the pool
         for worker in scheduler.workers:
             # Dry run
-            res = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
+            _ = client.get(graph, (lazy_result.__dask_layers__()[0], 0))
 
     print('done')
 
