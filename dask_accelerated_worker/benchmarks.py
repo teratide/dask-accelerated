@@ -69,14 +69,15 @@ def run_in_benchmark(client, benchmark_config):
             end = time.time()
 
             duration = end - start
-            data_in_size[in_size] += duration
+            if i > 2:
+                data_in_size[in_size] += duration
             print(
                 'In: ', in_size,
                 '\tBatch: ', benchmark_config['batch_size'] * benchmark_config['const_batch_aggregate'],
                 '\tComputed ', res, ' in ', duration, ' seconds'
             )
 
-        data_in_size[in_size] = data_in_size[in_size] / benchmark_config['repeats']
+        data_in_size[in_size] = data_in_size[in_size] / (benchmark_config['repeats'] - 3)
 
     return data_in_size
 
@@ -106,13 +107,14 @@ def run_batch_benchmark(client, benchmark_config):
             end = time.time()
 
             duration = end - start
-            data_batch_size[batch_aggregate] += duration
+            if i > 2:
+                data_batch_size[batch_aggregate] += duration
             print(
                 'In: ', benchmark_config['const_in_size'],
                 '\tBatch: ', benchmark_config['batch_size'] * batch_aggregate,
                 'Computed ', res, ' in ', duration, ' seconds'
             )
 
-        data_batch_size[batch_aggregate] = data_batch_size[batch_aggregate] / benchmark_config['repeats']
+        data_batch_size[batch_aggregate] = data_batch_size[batch_aggregate] / (benchmark_config['repeats'] - 3)
 
     return data_batch_size

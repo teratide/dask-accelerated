@@ -15,7 +15,7 @@ benchmark_config = {
     'batch_size': 1e3,
     'const_batch_aggregate': 1e3,
     'batch_aggregates': [64, 128, 256, 512, 1024, 2048, 4096, 8192],
-    'repeats': 5
+    'repeats': 6
 }
 
 
