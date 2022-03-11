@@ -1,6 +1,7 @@
 import re
 from dask.optimization import SubgraphCallable
 
+
 # Unwrap the corresponding subgraph_callable in the task graph in order to insert a custom function
 def compute_substitute(dsk, key, custom):
     str_match = dsk[(key, 0)]
@@ -16,6 +17,7 @@ def compute_substitute(dsk, key, custom):
 
     return SubgraphCallable(new_dsk, call.outkey, call.inkeys, "regex_callable")
 
+
 # Substitute all string match operators in the graph with the custom re2 operator
 def optimize_graph_re2(graph, substitute_function):
 
@@ -27,7 +29,7 @@ def optimize_graph_re2(graph, substitute_function):
     # This key is used to target one of the operators in the task graph
     # from which the regex_callable will be constructed
     for key in graph.keys():
-        if re.match(regex, key[0]) != None:
+        if re.match(regex, key[0]) is not None:
             key = key[0]    # The keys are tuples and the operator name is the first value
             break
 
@@ -39,7 +41,7 @@ def optimize_graph_re2(graph, substitute_function):
 
     # Substitute the regex_callable if the operator name matches the str-match pattern
     for k in dsk:
-        if re.match(regex, k[0]) != None:
+        if re.match(regex, k[0]) is not None:
             target_op = list(dsk[k])
             target_op[0] = regex_callable
             dsk[k] = tuple(target_op)

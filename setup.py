@@ -7,12 +7,17 @@ setup(
     install_requires=[
         'cython',
         'dask',
+        'dask[distributed]',
         'dask[dataframe]',
+        'bokeh',
+        'jupyter-server-proxy',
         'pyarrow',
         'pandas',
         'xeger',
         'progressbar2',
         'matplotlib',
-        'jupyter_contrib_nbextensions'
+        'jupyter_contrib_nbextensions',
+        'flake8',
+        'tornado'
     ]
 )

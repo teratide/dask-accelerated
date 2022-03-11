@@ -124,6 +124,3 @@ def benchmark_tidre_in_size(in_sizes, batch_size, batch_aggregate, repeats):
     }
 
     return data, name
-
-
-

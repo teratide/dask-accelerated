@@ -13,6 +13,7 @@ parser.add_argument('--tidre', dest='tidre', action='store_const',
 
 args = parser.parse_args()
 
+
 def benchmark_re2(in_sizes, batch_aggregates, repeats):
 
     # Constants when varying a single parameter
@@ -28,10 +29,20 @@ def benchmark_re2(in_sizes, batch_aggregates, repeats):
 
     data = {}
 
-    (benchmark_data, benchmark_name) = bench.benchmark_re2_in_size(in_sizes, constant_batch_size_in_benchmark, constant_batch_aggregate, repeats)
+    (benchmark_data, benchmark_name) = bench.benchmark_re2_in_size(
+        in_sizes,
+        constant_batch_size_in_benchmark,
+        constant_batch_aggregate,
+        repeats
+    )
     data[benchmark_name] = benchmark_data
 
-    (benchmark_data, benchmark_name) = bench.benchmark_re2_batch_size(constant_in_size, constant_batch_size_batch_benchmark, batch_aggregates, repeats)
+    (benchmark_data, benchmark_name) = bench.benchmark_re2_batch_size(
+        constant_in_size,
+        constant_batch_size_batch_benchmark,
+        batch_aggregates,
+        repeats
+    )
     data[benchmark_name] = benchmark_data
 
     benchmark_helpers.print_and_store_with_or_without_tidre(data, False)
@@ -52,10 +63,20 @@ def benchmark_tidre(in_sizes, batch_aggregates, repeats):
 
     data = {}
 
-    (benchmark_data, benchmark_name) = bench.benchmark_tidre_in_size(in_sizes, constant_batch_size_in_benchmark, constant_batch_aggregate, repeats)
+    (benchmark_data, benchmark_name) = bench.benchmark_tidre_in_size(
+        in_sizes,
+        constant_batch_size_in_benchmark,
+        constant_batch_aggregate,
+        repeats
+    )
     data[benchmark_name] = benchmark_data
 
-    (benchmark_data, benchmark_name) = bench.benchmark_tidre_batch_size(constant_in_size, constant_batch_size_batch_benchmark, batch_aggregates, repeats)
+    (benchmark_data, benchmark_name) = bench.benchmark_tidre_batch_size(
+        constant_in_size,
+        constant_batch_size_batch_benchmark,
+        batch_aggregates,
+        repeats
+    )
     data[benchmark_name] = benchmark_data
 
     benchmark_helpers.print_and_store_with_or_without_tidre(data, True)
@@ -75,4 +96,3 @@ if __name__ == '__main__':
     end = time.time()
 
     print("Ran all benchmarks in ", (end - start) / 60, " minutes")
-

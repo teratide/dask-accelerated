@@ -110,7 +110,9 @@ def get_lazy_result(in_size, batch_size, split_row_groups):
     parquet_engine = "pyarrow"  # Valid engines: ['fastparquet', 'pyarrow', 'pyarrow-dataset', 'pyarrow-legacy']
     file_root = "../data_generator/diving/data-"
     file_ext = ".parquet"
-    regex = '.*[tT][eE][rR][aA][tT][iI][dD][eE][ \t\n]+[dD][iI][vV][iI][nN][gG][ \t\n]+([sS][uU][bB])+[sS][uU][rR][fF][aA][cC][eE].*'
+    regex = '.*[tT][eE][rR][aA][tT][iI][dD][eE][ \t\n]+' \
+            '[dD][iI][vV][iI][nN][gG][ \t\n]+' \
+            '([sS][uU][bB])+[sS][uU][rR][fF][aA][cC][eE].*'
 
     # Load the dataframe
     columns = ["value", "string"]
@@ -151,7 +153,11 @@ def run_and_record_durations(dsk, result, substitute_operator):
     filter_durations = np.array(substitute_operator.durations)
     durations = construct_durations(total_duration_in_seconds, filter_durations)
 
-    print("Computed ", res, " in ", total_duration_in_seconds, " seconds\tfilter: ", durations['filter']['total'], " seconds")
+    print(
+        "Computed ", res,
+        " in ", total_duration_in_seconds, " seconds",
+        "\tfilter: ", durations['filter']['total'], " seconds"
+    )
 
     return res, durations
 
@@ -191,7 +197,9 @@ def generate_datasets_if_needed(sizes, chunksize=1e6):
         print("Missing datasets found, these will be generated")
         match_percentage = 0.05
         data_length = 100
-        regex = '.*[tT][eE][rR][aA][tT][iI][dD][eE][ \t\n]+[dD][iI][vV][iI][nN][gG][ \t\n]+([sS][uU][bB])+[sS][uU][rR][fF][aA][cC][eE].*'
+        regex = '.*[tT][eE][rR][aA][tT][iI][dD][eE][ \t\n]+' \
+                '[dD][iI][vV][iI][nN][gG][ \t\n]+' \
+                '([sS][uU][bB])+[sS][uU][rR][fF][aA][cC][eE].*'
         parquet_chunksize = chunksize
         parquet_compression = 'none'
 

@@ -2,7 +2,17 @@ import pickler
 from dask_accelerated import helpers
 
 
-def run_repeats(in_size, batch_size, batch_aggregate, repeats, key, vanilla_filter, re2_filter, tidre_filter=None, tidre_filter_unaligned=None):
+def run_repeats(
+        in_size,
+        batch_size,
+        batch_aggregate,
+        repeats,
+        key,
+        vanilla_filter,
+        re2_filter,
+        tidre_filter=None,
+        tidre_filter_unaligned=None
+):
 
     # Single run to mitigate caching effects
     (res, dur) = helpers.run_vanilla(in_size, batch_size, batch_aggregate)

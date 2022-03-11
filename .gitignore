@@ -151,3 +151,6 @@ cython_debug/
 
 # Profiler results
 profiler/*.txt
+
+# Dask distributed
+dask-worker-space/

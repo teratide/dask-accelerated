@@ -150,9 +150,6 @@ class CustomFilter:
         # The number of records in the current batch
         number_of_records = obj.size
 
-        # The regular expression to be matched
-        regex = args[0]
-
         # Add some padding to the pandas series, which will be removed from the buffers later
         obj_with_padding = pandas.concat([pandas.Series(["a"]), obj])
         arr = pyarrow.Array.from_pandas(obj_with_padding)
